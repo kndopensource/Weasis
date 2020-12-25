@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.core.api.service;
 
 import java.io.File;
@@ -179,18 +179,5 @@ public class BundlePreferences {
                 pref.putLong(key, value);
             }
         }
-    }
-
-    public static boolean isNullStaticFieldValue(Class<?> clazz, String fieldName) {
-        try {
-            Field instance = clazz.getDeclaredField(fieldName);
-            if (instance != null) {
-                instance.setAccessible(true);
-                return instance.get(null) == null;
-            }
-        } catch (Exception e) {
-            LOGGER.error("Checking static field value", e); //$NON-NLS-1$
-        }
-        return false;
     }
 }

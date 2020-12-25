@@ -1,20 +1,25 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec;
 
 import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
+import java.util.Date;
+import org.dcm4che3.data.DatePrecision;
+import org.dcm4che3.util.DateUtils;
 import org.junit.Test;
 import org.weasis.core.api.Messages;
 
@@ -121,29 +126,26 @@ public class TagDTest {
     @Test
     public void testGetDicomDateTime() throws Exception {
 
-        // Date date = DateUtils.parseDA(null, "1993:08:22");
-        // LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        // assertEquals(LocalDate.of(1993, 8, 22), datetime.toLocalDate());
-        //
-        // DatePrecision precision = new DatePrecision();
-        // date = DateUtils.parseTM(null, "0709.0705 ", precision);
-        // datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
-        // assertEquals(LocalTime.of(7, 9, 7, 70_000_000), datetime.toLocalTime());
+         Date date = DateUtils.parseDA(null, "1993:08:22"); //$NON-NLS-1$
+         LocalDateTime datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+         assertEquals(LocalDate.of(1993, 8, 22), datetime.toLocalDate());
 
-        // LocalDateTime time = TagD.getDicomDateTime(null, "1953082711");
-        // assertEquals(LocalDateTime.of(1953, 8, 27, 11, 0), time);
-        //
-        // time = TagD.getDicomDateTime(null,"19530827111300");
-        // assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0), time);
-        //
-        // time = TagD.getDicomDateTime(null,"19530827111300.0");
-        // assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0), time);
-        //
-        // time = TagD.getDicomDateTime(null,"19530827111300.000055");
-        // assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0, 55_000), time);
-        //
-        // time = TagD.getDicomDateTime(null,"19530827111300+0700");
-        // assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0, 55_000), time);
+         DatePrecision precision = new DatePrecision();
+         date = DateUtils.parseTM(null, "070907.07 ", precision); //$NON-NLS-1$
+         datetime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+         assertEquals(LocalTime.of(7, 9, 7, 70_000_000), datetime.toLocalTime());
+
+         LocalDateTime time = TagD.getDicomDateTime(null, "1953082711"); //$NON-NLS-1$
+         assertEquals(LocalDateTime.of(1953, 8, 27, 11, 0), time);
+
+         time = TagD.getDicomDateTime(null,"19530827111300"); //$NON-NLS-1$
+         assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0), time);
+
+         time = TagD.getDicomDateTime(null,"19530827111300.0"); //$NON-NLS-1$
+         assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0), time);
+
+         time = TagD.getDicomDateTime(null,"19530827111300.005"); //$NON-NLS-1$
+         assertEquals(LocalDateTime.of(1953, 8, 27, 11, 13, 0, 5_000_000), time);
     }
 
     @Test

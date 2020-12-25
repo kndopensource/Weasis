@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 
 package org.weasis.dicom.wave.dockable;
 
@@ -34,11 +34,13 @@ import javax.swing.table.TableModel;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weasis.core.api.gui.util.TableHeaderRenderer;
 import org.weasis.core.api.media.data.Series;
 import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.util.FontTools;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.core.ui.docking.PluginTool;
 import org.weasis.core.ui.editor.SeriesViewerEvent;
 import org.weasis.core.ui.editor.SeriesViewerEvent.EVENT;
@@ -58,6 +60,7 @@ import bibliothek.gui.dock.common.mode.ExtendedMode;
 
 public class MeasureAnnotationTool extends PluginTool implements SeriesViewerListener {
     private static final long serialVersionUID = 1117961156637401550L;
+    private static final Logger LOGGER = LoggerFactory.getLogger( MeasureAnnotationTool.class );
 
     public static final String BUTTON_NAME = "Measurements"; //$NON-NLS-1$
 
@@ -250,8 +253,7 @@ public class MeasureAnnotationTool extends PluginTool implements SeriesViewerLis
                         .getString(Tag.CodeMeaning);
                     addValueToModel(list, name, value);
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOGGER.error("Cannot read AcquisitionContextSequence", e); //$NON-NLS-1$
                 }
             }
         }
@@ -327,8 +329,7 @@ public class MeasureAnnotationTool extends PluginTool implements SeriesViewerLis
                     }
 
                 } catch (Exception e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOGGER.error("Cannot read MeasurementUnitsCodeSequence", e); //$NON-NLS-1$
                 }
             }
         }

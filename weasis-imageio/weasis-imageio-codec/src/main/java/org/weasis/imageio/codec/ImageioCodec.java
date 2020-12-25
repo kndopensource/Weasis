@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.imageio.codec;
 
 import java.net.URI;
@@ -21,12 +21,10 @@ import org.weasis.core.api.image.cv.ImageCVIO;
 import org.weasis.core.api.media.data.Codec;
 import org.weasis.core.api.media.data.MediaReader;
 
-import com.sun.media.imageioimpl.common.ImageioUtil;
-import com.sun.media.imageioimpl.stream.ChannelImageInputStreamSpi;
-import com.sun.media.imageioimpl.stream.ChannelImageOutputStreamSpi;
-
 @org.osgi.service.component.annotations.Component(service = Codec.class, immediate = false)
 public class ImageioCodec implements Codec {
+
+    public static final String NAME = "JDK ImageIO"; //$NON-NLS-1$
 
     @Override
     public String[] getReaderMIMETypes() {
@@ -60,7 +58,7 @@ public class ImageioCodec implements Codec {
 
     @Override
     public String getCodecName() {
-        return "Sun java imageio"; //$NON-NLS-1$
+        return NAME;
     }
 
     @Override
@@ -81,25 +79,11 @@ public class ImageioCodec implements Codec {
     protected void activate(ComponentContext context) {
         // Do not use cache. Images must be download locally before reading them.
         ImageIO.setUseCache(false);
-
-        // SPI Issue Resolution
-        // Register imageio SPI with the classloader of this bundle
-        // and unregister imageio SPI if imageio.jar is also in the jre/lib/ext folder
-
-        Class<?>[] jaiCodecs = { ChannelImageInputStreamSpi.class, ChannelImageOutputStreamSpi.class };
-
-        for (Class<?> c : jaiCodecs) {
-            ImageioUtil.registerServiceProvider(c);
-        }
     }
 
     @Deactivate
     protected void deactivate(ComponentContext context) {
-        Class<?>[] jaiCodecs = { ChannelImageInputStreamSpi.class, ChannelImageOutputStreamSpi.class };
 
-        for (Class<?> c : jaiCodecs) {
-            ImageioUtil.unRegisterServiceProvider(c);
-        }
     }
 
 }

@@ -1,19 +1,15 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.awt.image.DataBuffer;
-import java.awt.image.Raster;
-import java.awt.image.RenderedImage;
 import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +24,6 @@ import java.nio.ByteOrder;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,14 +31,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.metadata.IIOMetadata;
 import javax.imageio.stream.ImageInputStream;
-
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.BulkData;
 import org.dcm4che3.data.Fragments;
@@ -53,8 +42,6 @@ import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
 import org.dcm4che3.image.Overlays;
 import org.dcm4che3.image.PhotometricInterpretation;
-import org.dcm4che3.imageio.plugins.dcm.DicomImageReadParam;
-import org.dcm4che3.imageio.plugins.dcm.DicomImageReaderSpi;
 import org.dcm4che3.imageio.plugins.dcm.DicomMetaData;
 import org.dcm4che3.imageio.stream.ImageInputStreamAdapter;
 import org.dcm4che3.io.DicomInputStream;
@@ -81,7 +68,8 @@ import org.weasis.core.api.media.data.SoftHashMap;
 import org.weasis.core.api.media.data.TagView;
 import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.service.BundleTools;
-import org.weasis.core.api.util.FileUtil;
+import org.weasis.core.util.FileUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.TagD.Level;
 import org.weasis.dicom.codec.display.CornerDisplay;
 import org.weasis.dicom.codec.display.Modality;
@@ -97,7 +85,7 @@ import org.weasis.opencv.data.PlanarImage;
 import org.weasis.opencv.op.ImageConversion;
 import org.weasis.opencv.op.ImageProcessor;
 
-public class DicomMediaIO extends ImageReader implements DcmMediaReader {
+public class DicomMediaIO implements DcmMediaReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DicomMediaIO.class);
 
@@ -258,8 +246,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
         });
     }
 
-    static final DicomImageReaderSpi dicomImageReaderSpi = new DicomImageReaderSpi();
-
     private static final SoftHashMap<DicomMediaIO, DicomMetaData> HEADER_CACHE =
         new SoftHashMap<DicomMediaIO, DicomMetaData>() {
 
@@ -313,7 +299,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
     private final FileCache fileCache;
 
     public DicomMediaIO(URI uri) {
-        super(dicomImageReaderSpi);
         this.uri = Objects.requireNonNull(uri);
         this.numberOfFrame = 0;
         this.tags = new HashMap<>();
@@ -796,8 +781,21 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
                 // constructors). RGB color model doesn't make sense for lossy jpeg.
                 // http://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
                 if (pmi.name().startsWith("YBR") || ("RGB".equalsIgnoreCase(pmi.name()) //$NON-NLS-1$ //$NON-NLS-2$
-                    && TransferSyntax.JPEG_LOSSY_8.getTransferSyntaxUID().equals(syntax))) {
-                    dcmFlags |= Imgcodecs.DICOM_FLAG_YBR;
+                        && TransferSyntax.JPEG_LOSSY_8.getTransferSyntaxUID().equals(syntax))) {
+                    boolean ybr = true;
+                    if("RGB".equalsIgnoreCase(pmi.name())) { //$NON-NLS-1$
+                        String[] list = BundleTools.SYSTEM_PREFERENCES.getProperty("jpeg.lossy.rgb.manufacturer.list", "").split(","); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+                        String manufacturer = getDicomObject().getString(Tag.Manufacturer);
+                        for (int i = 0; i < list.length; i++) {
+                            if(StringUtil.hasText(list[i]) && list[i].trim().equalsIgnoreCase(manufacturer)){
+                                ybr = false;
+                                break;
+                            }
+                        }
+                    }
+                    if(ybr){
+                        dcmFlags |= Imgcodecs.DICOM_FLAG_YBR;
+                    }
                 }
                 if (bigendian) {
                     dcmFlags |= Imgcodecs.DICOM_FLAG_BIGENDIAN;
@@ -816,11 +814,12 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
 
                 if (rawData) {
                     int bits = bitsStored <= 8 && bitsAllocated > 8 ? 9 : bitsStored; // Fix #94
+                    int streamVR= pixeldataVR == null ? 1 : pixeldataVR.vr.numEndianBytes();
                     MatOfInt dicomparams = new MatOfInt(Imgcodecs.IMREAD_UNCHANGED, dcmFlags,
                         TagD.getTagValue(this, Tag.Columns, Integer.class),
                         TagD.getTagValue(this, Tag.Rows, Integer.class), 0,
                         TagD.getTagValue(this, Tag.SamplesPerPixel, Integer.class), bits,
-                        banded ? Imgcodecs.ILV_NONE : Imgcodecs.ILV_SAMPLE);
+                        banded ? Imgcodecs.ILV_NONE : Imgcodecs.ILV_SAMPLE, streamVR);
                     return ImageCV.toImageCV(Imgcodecs.dicomRawFileRead(orinigal.get().getAbsolutePath(), positions,
                         lengths, dicomparams, pmi.name()));
                 }
@@ -981,34 +980,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
         return (Series<MediaElement>) series;
     }
 
-    @Override
-    public int getHeight(int frameIndex) throws IOException {
-        checkIndex(frameIndex);
-        return TagD.getTagValue(this, Tag.Rows, Integer.class);
-    }
-
-    @Override
-    public int getWidth(int frameIndex) throws IOException {
-        checkIndex(frameIndex);
-        return TagD.getTagValue(this, Tag.Columns, Integer.class);
-    }
-
-    @Override
-    public ImageTypeSpecifier getRawImageType(int frameIndex) throws IOException {
-        readMetaData();
-        checkIndex(frameIndex);
-        return createImageType(bitsStored, dataType, false);
-    }
-
-    @Override
-    public Iterator<ImageTypeSpecifier> getImageTypes(int frameIndex) throws IOException {
-        readMetaData();
-        checkIndex(frameIndex);
-
-        ImageTypeSpecifier imageType = createImageType(bitsStored, dataType, false);
-        return Collections.singletonList(imageType).iterator();
-    }
-
     private boolean isRLELossless() {
         return dis == null ? false : dis.getTransferSyntax().equals(UID.RLELossless);
     }
@@ -1085,53 +1056,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
         return new ExtendSegmentedInputImageStream(fileCache.getOriginalFile().orElse(null), offsets, length);
     }
 
-    @Override
-    public boolean canReadRaster() {
-        return true;
-    }
-
-    @Override
-    public Raster readRaster(int frameIndex, ImageReadParam param) throws IOException {
-        readingImage = true;
-        try {
-            PlanarImage img = getImageFragment(getSingleImage(frameIndex), frameIndex);
-            return ImageConversion.toBufferedImage(img).getRaster();
-        } catch (Exception e) {
-            LOGGER.error("Reading image", e); //$NON-NLS-1$
-            return null;
-        } finally {
-            readingImage = false;
-        }
-    }
-
-    @Override
-    public BufferedImage read(int frameIndex, ImageReadParam param) throws IOException {
-        readingImage = true;
-        try {
-            PlanarImage img = getImageFragment(getSingleImage(frameIndex), frameIndex);
-            return ImageConversion.toBufferedImage(img);
-        } catch (Exception e) {
-            LOGGER.error("Reading image", e); //$NON-NLS-1$
-            return null;
-        } finally {
-            readingImage = false;
-        }
-    }
-
-    @Override
-    public RenderedImage readAsRenderedImage(int frameIndex, ImageReadParam param) throws IOException {
-        readingImage = true;
-        try {
-            PlanarImage img = getImageFragment(getSingleImage(frameIndex), frameIndex);
-            return ImageConversion.toBufferedImage(img);
-        } catch (Exception e) {
-            LOGGER.error("Reading image", e); //$NON-NLS-1$
-            return null;
-        } finally {
-            readingImage = false;
-        }
-    }
-
     public boolean isSkipLargePrivate() {
         return skipLargePrivate;
     }
@@ -1155,25 +1079,11 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
         return null;
     }
 
-    @Override
-    public void setInput(Object input, boolean seekForwardOnly, boolean ignoreMetadata) {
-        super.setInput(input, seekForwardOnly, ignoreMetadata);
-        resetInternalState();
-        if (input != null) {
-            if (!(input instanceof ImageInputStream)) {
-                throw new IllegalArgumentException("Input not an ImageInputStream!"); //$NON-NLS-1$
-            }
-            this.iis = (ImageInputStream) input;
-        }
-    }
-
-    @Override
     public void dispose() {
         HEADER_CACHE.remove(this);
         readingHeader = false;
         readingImage = false;
         reset();
-        super.dispose();
     }
 
     @Override
@@ -1186,7 +1096,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
          * reading).
          */
         if (!readingHeader && !readingImage) {
-            super.reset();
             resetInternalState();
         }
     }
@@ -1198,44 +1107,8 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
         tsuid = null;
     }
 
-    private void checkIndex(int frameIndex) {
-        if (frameIndex < 0 || frameIndex >= numberOfFrame) {
-            throw new IndexOutOfBoundsException("imageIndex: " + frameIndex); //$NON-NLS-1$
-        }
-    }
-
-    @Override
-    public ImageReadParam getDefaultReadParam() {
-        return new DicomImageReadParam();
-    }
-
-    /**
-     * Return a DicomStreamMetaData object that includes the DICOM header. <b>WARNING:</b> If this class is used to read
-     * directly from a cache or other location that contains uncorrected data, the DICOM header will have the
-     * uncorrected data as well. That is, assume the DB has some fixes to patient demographics. These will not usually
-     * be applied to the DICOM files directly, so you can get the wrong information from the header. This is not an
-     * issue if you know the DICOM is up to date, or if you use the DB information as authoritative.
-     */
-    @Override
-    public IIOMetadata getStreamMetadata() throws IOException {
+    public DicomMetaData getStreamMetadata() throws IOException {
         return readMetaData();
-    }
-
-    /**
-     * Gets any image specific meta data. This should return the image specific blocks for enhanced multi-frame, but
-     * currently it merely returns null.
-     */
-    @Override
-    public IIOMetadata getImageMetadata(int imageIndex) throws IOException {
-        return null;
-    }
-
-    /**
-     * Returns the number of regular images in the study. This excludes overlays.
-     */
-    @Override
-    public int getNumImages(boolean allowSearch) throws IOException {
-        return numberOfFrame;
     }
 
     /**
@@ -1256,7 +1129,8 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
             if (iis == null) {
                 Optional<File> file = fileCache.getOriginalFile();
                 if (file.isPresent()) {
-                    setInput(ImageIO.createImageInputStream(new File(uri)), false, false);
+                    resetInternalState();
+                    this.iis = ImageIO.createImageInputStream(new File(uri));
                 }
             }
 
@@ -1326,20 +1200,6 @@ public class DicomMediaIO extends ImageReader implements DcmMediaReader {
             iis = null;
 
         }
-    }
-
-    private SampleModel createSampleModel(int dataType, boolean banded) {
-        return pmi.createSampleModel(dataType, TagD.getTagValue(this, Tag.Columns, Integer.class),
-            TagD.getTagValue(this, Tag.Rows, Integer.class), TagD.getTagValue(this, Tag.SamplesPerPixel, Integer.class),
-            banded);
-    }
-
-    private ImageTypeSpecifier createImageType(int bits, int dataType, boolean banded) {
-        return new ImageTypeSpecifier(createColorModel(bits, dataType), createSampleModel(dataType, banded));
-    }
-
-    private ColorModel createColorModel(int bits, int dataType) {
-        return pmi.createColorModel(bits, dataType, getDicomObject());
     }
 
     private boolean decodeJpeg2000(ImageInputStream iis) throws IOException {

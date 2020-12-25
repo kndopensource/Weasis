@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.base.ui.gui;
 
 import java.awt.AWTException;
@@ -96,10 +96,7 @@ import org.weasis.core.api.media.data.MediaSeriesGroup;
 import org.weasis.core.api.media.data.Series;
 import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.service.BundleTools;
-import org.weasis.core.api.util.LangUtil;
 import org.weasis.core.api.util.ResourceUtil;
-import org.weasis.core.api.util.StringUtil;
-import org.weasis.core.api.util.StringUtil.Suffix;
 import org.weasis.core.ui.docking.DockableTool;
 import org.weasis.core.ui.docking.UIManager;
 import org.weasis.core.ui.editor.MimeSystemAppViewer;
@@ -116,6 +113,9 @@ import org.weasis.core.ui.util.DefaultAction;
 import org.weasis.core.ui.util.ToolBarContainer;
 import org.weasis.core.ui.util.Toolbar;
 import org.weasis.core.ui.util.UriListFlavor;
+import org.weasis.core.util.LangUtil;
+import org.weasis.core.util.StringUtil;
+import org.weasis.core.util.StringUtil.Suffix;
 
 import bibliothek.extension.gui.dock.theme.EclipseTheme;
 import bibliothek.extension.gui.dock.theme.eclipse.EclipseTabDockActionLocation;
@@ -259,24 +259,27 @@ public class WeasisWin {
         if (BundleTools.SYSTEM_PREFERENCES.getBooleanProperty("weasis.confirm.closing", false)) { //$NON-NLS-1$
             int option = JOptionPane.showConfirmDialog(frame, Messages.getString("WeasisWin.exit_mes")); //$NON-NLS-1$
             if (option == JOptionPane.YES_OPTION) {
-                closeAllRunnable();
-                System.exit(0);
-                return true;
+                return closeAllRunnable();
             }
         } else {
-            closeAllRunnable();
-            System.exit(0);
-            return true;
+            return closeAllRunnable();
         }
         return false;
     }
 
-    private void closeAllRunnable() {
+    private boolean closeAllRunnable() {
+        BundleTools.LOCAL_UI_PERSISTENCE.putIntProperty("last.window.state", frame.getExtendedState()); //$NON-NLS-1$
+        Rectangle rect = frame.getBounds();
+        BundleTools.LOCAL_UI_PERSISTENCE.putIntProperty("last.window.x", rect.x); //$NON-NLS-1$
+        BundleTools.LOCAL_UI_PERSISTENCE.putIntProperty("last.window.y", rect.y); //$NON-NLS-1$
+        BundleTools.LOCAL_UI_PERSISTENCE.putIntProperty("last.window.width", rect.width); //$NON-NLS-1$
+        BundleTools.LOCAL_UI_PERSISTENCE.putIntProperty("last.window.height", rect.height); //$NON-NLS-1$
         for (Runnable onClose : runOnClose) {
             onClose.run();
         }
+        System.exit(0);
+        return true;
     }
-
     public void runOnClose(Runnable run) {
         runOnClose.add(run);
     }
@@ -646,6 +649,10 @@ public class WeasisWin {
             config = defMonitor.getGraphicsConfiguration();
         }
 
+        int lastState = BundleTools.LOCAL_UI_PERSISTENCE.getIntProperty("last.window.state", Frame.MAXIMIZED_BOTH); //$NON-NLS-1$
+        if(lastState != Frame.NORMAL) {
+            lastState =  Frame.MAXIMIZED_BOTH;
+        }
         Rectangle b;
         if (config != null) {
             b = config.getBounds();
@@ -654,6 +661,25 @@ public class WeasisWin {
             b.y += inset.top;
             b.width -= (inset.left + inset.right);
             b.height -= (inset.top + inset.bottom);
+            if (lastState == Frame.NORMAL) {
+                int x = BundleTools.LOCAL_UI_PERSISTENCE.getIntProperty("last.window.x", 0); //$NON-NLS-1$
+                int y = BundleTools.LOCAL_UI_PERSISTENCE.getIntProperty("last.window.y", 0); //$NON-NLS-1$
+                int w = BundleTools.LOCAL_UI_PERSISTENCE.getIntProperty("last.window.width", Integer.MAX_VALUE); //$NON-NLS-1$
+                int h = BundleTools.LOCAL_UI_PERSISTENCE.getIntProperty("last.window.height", Integer.MAX_VALUE); //$NON-NLS-1$
+                if(x < b.x) {
+                    x = b.x;
+                }
+                if(y < b.y) {
+                    y = b.y;
+                }
+                if(w > b.width) {
+                    w = b.width;
+                }
+                if(h > b.height) {
+                    h = b.height;
+                }
+                b = new Rectangle(x, y, w, h);
+            }
         } else {
             b = new Rectangle(new Point(0, 0), kit.getScreenSize());
         }
@@ -661,12 +687,17 @@ public class WeasisWin {
 
         // Do not apply to JApplet
         if (frame == rootPaneContainer) {
-            // set a valid size, insets of screen is often non consistent
-            frame.setBounds(b.x, b.y, b.width - 150, b.height - 150);
-            frame.setVisible(true);
-
-            frame.setExtendedState((frame.getExtendedState() & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH
-                ? Frame.NORMAL : Frame.MAXIMIZED_BOTH);
+            if (lastState == Frame.MAXIMIZED_BOTH) {
+                // set a valid size, insets of screen is often non consistent
+                frame.setBounds(b.x, b.y, b.width - 150, b.height - 150);
+                frame.setVisible(true);
+                frame.setExtendedState(frame.getExtendedState() | Frame.MAXIMIZED_BOTH);
+            }
+            else{
+                frame.setBounds(b.x, b.y, b.width, b.height);
+                frame.setExtendedState(lastState);
+                frame.setVisible(true);
+            }
         }
         LOGGER.info("End of loading the GUI..."); //$NON-NLS-1$
     }

@@ -1,40 +1,25 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.viewer2d.mpr;
 
-import java.awt.Dimension;
-import java.awt.Transparency;
-import java.awt.color.ColorSpace;
-import java.awt.image.BandedSampleModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
-import java.awt.image.PixelInterleavedSampleModel;
-import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.ImageTypeSpecifier;
-import javax.imageio.stream.ImageInputStream;
-
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.BulkData;
+import org.dcm4che3.data.SpecificCharacterSet;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.UID;
 import org.dcm4che3.data.VR;
@@ -48,7 +33,7 @@ import org.weasis.core.api.media.data.MediaElement;
 import org.weasis.core.api.media.data.MediaSeries;
 import org.weasis.core.api.media.data.MediaSeriesGroup;
 import org.weasis.core.api.media.data.TagW;
-import org.weasis.core.api.util.FileUtil;
+import org.weasis.core.util.FileUtil;
 import org.weasis.dicom.codec.DcmMediaReader;
 import org.weasis.dicom.codec.DicomMediaIO;
 import org.weasis.dicom.codec.TagD;
@@ -56,15 +41,11 @@ import org.weasis.dicom.codec.utils.DicomMediaUtils;
 import org.weasis.opencv.data.FileRawImage;
 import org.weasis.opencv.data.PlanarImage;
 
-import com.sun.media.imageio.stream.RawImageInputStream;
 
 public class RawImageIO implements DcmMediaReader {
     private static final Logger LOGGER = LoggerFactory.getLogger(RawImageIO.class);
 
     private static final String MIME_TYPE = "image/raw"; //$NON-NLS-1$
-    private static final int[] OFFSETS_0 = { 0 };
-    private static final int[] OFFSETS_0_0_0 = { 0, 0, 0 };
-    private static final int[] OFFSETS_0_1_2 = { 0, 1, 2 };
 
     protected FileRawImage imageCV;
     private final FileCache fileCache;
@@ -234,77 +215,11 @@ public class RawImageIO implements DcmMediaReader {
         throw new UnsupportedOperationException();
     }
 
-    public static ImageReader initRawImageReader(ImageInputStream imageStream, ImageParameters h, int frames,
-        int pixelDataPos, boolean bigEndian, int pixelRepresentation) throws IOException {
-        if (imageStream != null) {
-
-            long[] frameOffsets = new long[frames];
-            int frameLen = h.getWidth() * h.getHeight() * h.getSamplesPerPixel() * (h.getBitsPerSample() >> 3);
-
-            frameOffsets[0] = pixelDataPos;
-            for (int i = 1; i < frameOffsets.length; i++) {
-                frameOffsets[i] = frameOffsets[i - 1] + frameLen;
-            }
-            Dimension[] imageDimensions = new Dimension[frames];
-            Arrays.fill(imageDimensions, new Dimension(h.getWidth(), h.getHeight()));
-
-            RawImageInputStream riis = new RawImageInputStream(imageStream,
-                createImageTypeSpecifier(h, false, pixelRepresentation), frameOffsets, imageDimensions);
-            riis.setByteOrder(bigEndian ? ByteOrder.BIG_ENDIAN : ByteOrder.LITTLE_ENDIAN);
-            ImageReader reader = ImageIO.getImageReadersByFormatName("RAW").next(); //$NON-NLS-1$
-            reader.setInput(riis);
-            return reader;
-        }
-        return null;
-    }
-
-    public static ImageTypeSpecifier createImageTypeSpecifier(ImageParameters h, boolean banded,
-        int pixelRepresentation) {
-        int width = h.getWidth();
-        int height = h.getHeight();
-        int bps = h.getBitsPerSample();
-        int spp = h.getSamplesPerPixel();
-
-        int dataType =
-            bps <= 8 ? DataBuffer.TYPE_BYTE : pixelRepresentation != 0 ? DataBuffer.TYPE_SHORT : DataBuffer.TYPE_USHORT;
-        if (bps > 16 && spp == 1) {
-            dataType = DataBuffer.TYPE_INT;
-        }
-        ColorSpace cs;
-        if (spp == 1) {
-            cs = ColorSpace.getInstance(ColorSpace.CS_GRAY);
-
-        } else if (spp == 3) {
-            cs = ColorSpace.getInstance(ColorSpace.CS_sRGB);
-        } else {
-            throw new IllegalArgumentException("Unsupported Samples per Pixel: " + spp); //$NON-NLS-1$
-        }
-        if (cs == null) {
-            throw new IllegalArgumentException("Unsupported Photometric Interpretation: " //$NON-NLS-1$
-                + " with Samples per Pixel: " + spp); //$NON-NLS-1$
-
-        }
-        int[] bits = new int[spp];
-        Arrays.fill(bits, bps);
-        ComponentColorModel cm = new ComponentColorModel(cs, bits, false, false, Transparency.OPAQUE, dataType);
-
-        SampleModel sm;
-        if (spp == 1) {
-            sm = new PixelInterleavedSampleModel(dataType, width, height, 1, width, OFFSETS_0);
-        }
-
-        // samples == 3
-        else if (banded) {
-            sm = new BandedSampleModel(dataType, width, height, width, OFFSETS_0_1_2, OFFSETS_0_0_0);
-        } else {
-            sm = new PixelInterleavedSampleModel(dataType, width, height, 3, width * 3, OFFSETS_0_1_2);
-        }
-        return new ImageTypeSpecifier(cm, sm);
-    }
-
     @Override
     public Attributes getDicomObject() {
-        Attributes dcm = new Attributes();
+        Attributes dcm = new Attributes(tags.size() + attributes.size());
+        SpecificCharacterSet cs = attributes.getSpecificCharacterSet();
+        dcm.setSpecificCharacterSet(cs.toCodes());
         DicomMediaUtils.fillAttributes(tags, dcm);
         dcm.addAll(attributes);
         return dcm;

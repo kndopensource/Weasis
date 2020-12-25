@@ -1,21 +1,13 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
-package org.weasis.dicom.codec;
+ */
 
-import java.awt.image.DataBuffer;
-import java.awt.image.DataBufferUShort;
-import java.awt.image.RenderedImage;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
+package org.weasis.dicom.codec;
 
 import org.dcm4che3.data.Tag;
 import org.opencv.core.Core.MinMaxLocResult;
@@ -38,6 +30,14 @@ import org.weasis.opencv.data.LookupTableCV;
 import org.weasis.opencv.data.PlanarImage;
 import org.weasis.opencv.op.ImageConversion;
 import org.weasis.opencv.op.ImageProcessor;
+
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferUShort;
+import java.awt.image.RenderedImage;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 public class DicomImageElement extends ImageElement {
 
@@ -669,9 +669,12 @@ public class DicomImageElement extends ImageElement {
                 return imageModalityTransformed;
             }
 
-            LookupTableCV voiLookup = getVOILookup(p.getPresentationStateTags(), p.getWindow(), p.getLevel(), p.getLevelMin(),
-                p.getLevelMax(), p.getLutShape(), p.isFillOutsideLutRange(), pixPadding);
             LookupTableCV prLutData = p.getPresentationStateLut();
+            LookupTableCV voiLookup = null;
+            if(prLutData == null || p.getLutShape().getLookup() != null){
+                voiLookup = getVOILookup(p.getPresentationStateTags(), p.getWindow(), p.getLevel(), p.getLevelMin(),
+                p.getLevelMax(), p.getLutShape(), p.isFillOutsideLutRange(), pixPadding);
+            }
             if (prLutData == null) {
                 return voiLookup.lookup(imageModalityTransformed);
             }

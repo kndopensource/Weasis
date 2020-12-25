@@ -4,18 +4,19 @@
 	<parent>
 		<artifactId>weasis-dicom-parent</artifactId>
 		<groupId>org.weasis.dicom</groupId>
-		<version>3.6.0</version>
+		<!--suppress MavenPropertyInParent -->
+    <version>${revision}${changelist}</version>
 		<relativePath>../weasis-dicom-parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>weasis-dicom-viewer2d</artifactId>
 	<packaging>bundle</packaging>
 	<name>2D DICOM Viewer [${project.artifactId}]</name>
-	
+
 	<properties>
 		<bundle.namespace>org.weasis.dicom.viewer2d</bundle.namespace>
 	</properties>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -33,23 +34,17 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<dependency>
-			<groupId>org.weasis.opencv</groupId>
-			<artifactId>weasis-opencv-core</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>org.weasis.core</groupId>
+			<artifactId>weasis-core-ui</artifactId>
+			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.weasis.dicom</groupId>
 			<artifactId>weasis-dicom-explorer</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.weasis.core</groupId>
-			<artifactId>weasis-core-ui</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
@@ -66,7 +61,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.weasis.thirdparty.com.sun.media</groupId>
+			<groupId>org.jogamp.java3d</groupId>
 			<artifactId>vecmath</artifactId>
 		</dependency>
 	</dependencies>

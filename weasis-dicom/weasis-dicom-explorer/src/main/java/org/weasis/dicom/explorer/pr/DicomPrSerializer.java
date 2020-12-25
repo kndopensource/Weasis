@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer.pr;
 
 import java.awt.Color;
@@ -204,10 +204,10 @@ public class DicomPrSerializer {
                 Attributes l = new Attributes(2);
                 l.setString(Tag.GraphicLayer, VR.CS, layerName);
                 l.setInt(Tag.GraphicLayerOrder, VR.IS, i);
-                float[] lab = PresentationStateReader
-                    .colorToLAB(Optional.ofNullable(MeasureTool.viewSetting.getLineColor()).orElse(Color.YELLOW));
+                int[] lab = CIELab
+                    .rgbToDicomLab(Optional.ofNullable(MeasureTool.viewSetting.getLineColor()).orElse(Color.YELLOW));
                 if (lab != null) {
-                    l.setInt(Tag.GraphicLayerRecommendedDisplayCIELabValue, VR.US, CIELab.convertToDicomLab(lab));
+                    l.setInt(Tag.GraphicLayerRecommendedDisplayCIELabValue, VR.US, lab);
                 }
                 l.setString(Tag.GraphicLayerDescription, VR.LO, layer.toString());
                 layerSeq.add(l);
@@ -252,9 +252,9 @@ public class DicomPrSerializer {
 
         if (graphic.getColorPaint() instanceof Color) {
             Color color = (Color) graphic.getColorPaint();
-            float[] rgb = PresentationStateReader.colorToLAB(color);
+            int[] rgb = CIELab.rgbToDicomLab(color);
             if (rgb != null) {
-                styles.setInt(Tag.PatternOnColorCIELabValue, VR.US, CIELab.convertToDicomLab(rgb));
+                styles.setInt(Tag.PatternOnColorCIELabValue, VR.US, rgb);
             }
         }
         style.add(styles);
@@ -344,9 +344,9 @@ public class DicomPrSerializer {
 
         if (g.getColorPaint() instanceof Color) {
             Color color = (Color) g.getColorPaint();
-            float[] rgb = PresentationStateReader.colorToLAB(color);
+            int[] rgb = CIELab.rgbToDicomLab(color);
             if (rgb != null) {
-                styles.setInt(Tag.PatternOnColorCIELabValue, VR.US, CIELab.convertToDicomLab(rgb));
+                styles.setInt(Tag.PatternOnColorCIELabValue, VR.US, rgb);
             }
         }
         style.add(styles);
@@ -421,7 +421,7 @@ public class DicomPrSerializer {
                 out.writeDataset(dcm.createFileMetaInformation(UID.ImplicitVRLittleEndian), dcm);
                 return true;
             } catch (IOException e) {
-                LOGGER.error("Cannot write dicom PR: {}", e); //$NON-NLS-1$
+                LOGGER.error("Cannot write dicom PR into {}", output, e); //$NON-NLS-1$
             }
         }
         return false;

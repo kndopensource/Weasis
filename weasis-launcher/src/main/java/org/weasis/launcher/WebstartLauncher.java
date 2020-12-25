@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.launcher;
 
 import java.util.ArrayList;
@@ -15,15 +15,17 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.imageio.spi.IIORegistry;
 import javax.jnlp.ServiceManager;
 import javax.jnlp.SingleInstanceListener;
 import javax.jnlp.SingleInstanceService;
 import javax.jnlp.UnavailableServiceException;
-
 import org.apache.felix.framework.util.FelixConstants;
 
+/**
+ * Java > 8
+ * @deprecated (will be removed in weasis 4)
+ */
 @Deprecated
 public class WebstartLauncher extends WeasisLauncher implements SingleInstanceListener {
     private static final Logger LOGGER = Logger.getLogger(WebstartLauncher.class.getName());

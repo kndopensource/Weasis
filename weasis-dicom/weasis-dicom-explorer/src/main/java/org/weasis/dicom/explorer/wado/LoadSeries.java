@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer.wado;
 
 import java.awt.event.KeyListener;
@@ -20,14 +20,10 @@ import java.io.InterruptedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import javax.swing.JProgressBar;
 
@@ -56,11 +52,8 @@ import org.weasis.core.api.media.data.Thumbnail;
 import org.weasis.core.api.service.AuditLog;
 import org.weasis.core.api.service.BundleTools;
 import org.weasis.core.api.util.ClosableURLConnection;
-import org.weasis.core.api.util.FileUtil;
 import org.weasis.core.api.util.LocalUtil;
 import org.weasis.core.api.util.NetworkUtil;
-import org.weasis.core.api.util.StreamIOException;
-import org.weasis.core.api.util.StringUtil;
 import org.weasis.core.api.util.ThreadUtil;
 import org.weasis.core.api.util.URLParameters;
 import org.weasis.core.ui.docking.UIManager;
@@ -72,6 +65,9 @@ import org.weasis.core.ui.editor.image.ViewerPlugin;
 import org.weasis.core.ui.model.GraphicModel;
 import org.weasis.core.ui.model.ReferencedImage;
 import org.weasis.core.ui.model.ReferencedSeries;
+import org.weasis.core.util.FileUtil;
+import org.weasis.core.util.StreamIOException;
+import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.DicomMediaIO;
 import org.weasis.dicom.codec.DicomSpecialElement;
 import org.weasis.dicom.codec.TagD;
@@ -568,11 +564,15 @@ public class LoadSeries extends ExplorerTask<Boolean, String> implements SeriesI
 
     public File getJPEGThumnails(WadoParameters wadoParameters, String studyUID, String seriesUID,
         String sopInstanceUID) throws IOException {
+        String addParams = wadoParameters.getAdditionnalParameters();
+        if(StringUtil.hasText(addParams)) {
+            addParams = Arrays.stream(addParams.split("&")).filter(p -> !p.startsWith("transferSyntax") && !p.startsWith("anonymize")).collect(Collectors.joining("&")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+        }
         // TODO set quality as a preference
         URL url =
             new URL(wadoParameters.getBaseURL() + "?requestType=WADO&studyUID=" + studyUID + "&seriesUID=" + seriesUID //$NON-NLS-1$ //$NON-NLS-2$
                 + "&objectUID=" + sopInstanceUID + "&contentType=image/jpeg&imageQuality=70" + "&rows=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                + Thumbnail.MAX_SIZE + "&columns=" + Thumbnail.MAX_SIZE + wadoParameters.getAdditionnalParameters()); //$NON-NLS-1$
+                + Thumbnail.MAX_SIZE + "&columns=" + Thumbnail.MAX_SIZE + addParams); //$NON-NLS-1$
 
         ClosableURLConnection httpCon = NetworkUtil.getUrlConnection(url, urlParams);
         File outFile = File.createTempFile("tumb_", ".jpg", Thumbnail.THUMBNAIL_CACHE_DIR); //$NON-NLS-1$ //$NON-NLS-2$

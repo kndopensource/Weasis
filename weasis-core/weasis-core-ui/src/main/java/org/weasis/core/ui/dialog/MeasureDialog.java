@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.core.ui.dialog;
 
 import java.awt.BorderLayout;
@@ -22,13 +22,13 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import org.weasis.core.api.util.EscapeChars;
 import org.weasis.core.ui.Messages;
 import org.weasis.core.ui.editor.image.ViewCanvas;
 import org.weasis.core.ui.model.graphic.DragGraphic;
 import org.weasis.core.ui.model.graphic.GraphicArea;
 import org.weasis.core.ui.model.graphic.imp.AnnotationGraphic;
 import org.weasis.core.ui.model.graphic.imp.PixelInfoGraphic;
+import org.weasis.core.util.EscapeChars;
 
 public class MeasureDialog extends PropertiesDialog {
     private List<DragGraphic> graphics;

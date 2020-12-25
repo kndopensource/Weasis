@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.launcher;
 
 import static org.weasis.launcher.WeasisLauncher.CONFIG_DIRECTORY;
@@ -193,6 +193,7 @@ public class ConfigData {
         appFolder.mkdirs();
         addProperty(P_WEASIS_PATH, appFolder.getPath());
         System.setProperty(P_WEASIS_PATH, appFolder.getPath());
+        LOGGER.log(Level.CONFIG,"Properties: " + properties);
     }
 
     private void filterConfigProperties(Properties felixConfig) {
@@ -214,10 +215,11 @@ public class ConfigData {
         try {
             String url = URLDecoder.decode(uri, "UTF-8"); //$NON-NLS-1$
             String[] cmds = url.split("\\$"); //$NON-NLS-1$
+            boolean windows = System.getProperty( P_OS_NAME,"").toLowerCase().startsWith("win"); //$NON-NLS-1$ //$NON-NLS-2$
             if (cmds.length > 0) {
                 for (int i = 1; i < cmds.length; i++) {
                     // Fix Windows issue (add a trailing slash)
-                    if (i == cmds.length - 1 && cmds[i].endsWith("/")) { //$NON-NLS-1$
+                    if (windows && i == cmds.length - 1 && cmds[i].endsWith("/")) { //$NON-NLS-1$
                         cmds[i] = cmds[i].substring(0, cmds[i].length() - 1);
                     }
                     arguments.add(cmds[i]);
@@ -472,13 +474,7 @@ public class ConfigData {
                 while (i + 1 < length && !args[i + 1].startsWith("$")) { //$NON-NLS-1$
                     i++;
                     command.append(' ');
-                    if (args[i].indexOf(' ') != -1 && !args[i].startsWith("\"")) { //$NON-NLS-1$
-                        command.append("\""); //$NON-NLS-1$
-                        command.append(args[i]);
-                        command.append("\""); //$NON-NLS-1$
-                    } else {
-                        command.append(args[i]);
-                    }
+                    command.append(args[i]);
                 }
                 arguments.add(command.toString());
             }

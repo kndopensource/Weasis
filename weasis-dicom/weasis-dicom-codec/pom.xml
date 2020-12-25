@@ -4,7 +4,8 @@
 	<parent>
 		<artifactId>weasis-dicom-parent</artifactId>
 		<groupId>org.weasis.dicom</groupId>
-		<version>3.6.0</version>
+		<!--suppress MavenPropertyInParent -->
+    <version>${revision}${changelist}</version>
 		<relativePath>../weasis-dicom-parent/pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -14,7 +15,6 @@
 
 	<properties>
 		<bundle.namespace>org.weasis.dicom.codec</bundle.namespace>
-		<weasis-dicom-tools.version>5.20.0</weasis-dicom-tools.version>
 	</properties>
 
 	<repositories>
@@ -55,7 +55,7 @@
 			<exclusions>
 				<exclusion>
 					<groupId>org.weasis.core</groupId>
-					<artifactId>weasis-core-util</artifactId>
+					<artifactId>weasis-core-img</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>junit</groupId>
@@ -70,13 +70,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.weasis.opencv</groupId>
-			<artifactId>weasis-opencv-core</artifactId>
-			<version>${project.parent.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.weasis.thirdparty.com.sun.media</groupId>
+			<groupId>org.jogamp.java3d</groupId>
 			<artifactId>vecmath</artifactId>
 		</dependency>
 

@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer;
 
 import java.awt.Point;
@@ -23,6 +23,7 @@ import java.util.Optional;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.image.PhotometricInterpretation;
+import org.dcm4che3.imageio.codec.Transcoder;
 import org.dcm4che3.media.DicomDirReader;
 import org.dcm4che3.media.DicomDirWriter;
 import org.dcm4che3.media.RecordFactory;
@@ -252,7 +253,7 @@ public class DicomDirLoader {
                             PhotometricInterpretation pmi = PhotometricInterpretation
                                 .fromString(iconInstance.getString(Tag.PhotometricInterpretation, "MONOCHROME2")); //$NON-NLS-1$
                             BufferedImage thumbnail = new BufferedImage(
-                                pmi.createColorModel(8, DataBuffer.TYPE_BYTE, iconInstance), raster, false, null);
+                                pmi.createColorModel(8, DataBuffer.TYPE_BYTE, Transcoder.sRGB, iconInstance), raster, false, null);
                             if (ImageProcessor.writeImage(thumbnail, thumbnailPath)) {
                                 return thumbnailPath.getPath();
                             }

@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.core.api.media.data;
 
 import java.awt.datatransfer.DataFlavor;
@@ -14,6 +14,7 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.IOException;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory;
 import org.weasis.core.api.Messages;
 import org.weasis.core.api.explorer.ObservableEvent;
 import org.weasis.core.api.gui.util.Filter;
-import org.weasis.core.api.util.LangUtil;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.LangUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.opencv.data.PlanarImage;
 
 public abstract class Series<E extends MediaElement> extends MediaSeriesGroupNode implements MediaSeries<E> {
@@ -43,7 +44,7 @@ public abstract class Series<E extends MediaElement> extends MediaSeriesGroupNod
     public static final DataFlavor sequenceDataFlavor =
         createConstant(DataFlavor.javaJVMLocalObjectMimeType + ";class=" + Series.class.getName(), null); //$NON-NLS-1$
 
-    private static final Random RANDOM = new Random();
+    private static final Random RANDOM = new SecureRandom();
     private static final DataFlavor[] flavors = { sequenceDataFlavor };
 
     private PropertyChangeSupport propertyChange = null;

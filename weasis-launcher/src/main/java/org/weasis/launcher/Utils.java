@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.launcher;
 
 import java.io.IOException;
@@ -21,7 +21,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -94,9 +93,9 @@ public class Utils {
     }
 
     public static String removeEnglobingQuotes(String value) {
-        return value.replaceAll("^\"|\"$", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        return value.replaceAll("(?:^\")|(?:\"$)", ""); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    
+
     public static String adaptPathToUri(String value) {
         return value.replace("\\", "/").replace(" ", "%20"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
     }
@@ -127,7 +126,7 @@ public class Utils {
         }
         return matchList;
     }
-    
+
     public static byte[] getByteArrayProperty(Properties prop, String key, byte[] def) {
         byte[] result = def;
         if (key != null) {
@@ -142,9 +141,7 @@ public class Utils {
         }
         return result;
     }
-    
 
-    
     public static byte[] decrypt(byte[] input, String strKey) throws GeneralSecurityException {
         SecretKeySpec skeyspec = new SecretKeySpec(Objects.requireNonNull(strKey).getBytes(), "Blowfish"); //$NON-NLS-1$
         Cipher cipher = Cipher.getInstance("Blowfish"); //$NON-NLS-1$

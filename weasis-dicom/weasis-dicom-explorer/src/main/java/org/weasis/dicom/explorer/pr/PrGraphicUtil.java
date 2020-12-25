@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer.pr;
 
 import java.awt.Color;
@@ -78,9 +78,9 @@ public class PrGraphicUtil {
         Float thickness = DicomMediaUtils.getFloatFromDicomElement(style, Tag.LineThickness, 1.0f);
         Boolean dashed = style == null ? Boolean.FALSE : "DASHED".equalsIgnoreCase(style.getString(Tag.LinePattern)); //$NON-NLS-1$
         if (style != null) {
-            float[] rgb = CIELab.convertToFloatLab(style.getInts(Tag.PatternOnColorCIELabValue));
+            int[] rgb = CIELab.dicomLab2rgb(style.getInts(Tag.PatternOnColorCIELabValue));
             if (rgb != null) {
-                color = PresentationStateReader.getRGBColor(255, rgb, (int[]) null);
+                color = PresentationStateReader.getRGBColor(255, rgb);
             }
         }
 
@@ -294,9 +294,9 @@ public class PrGraphicUtil {
         Float thickness = DicomMediaUtils.getFloatFromDicomElement(style, Tag.LineThickness, 1.0f);
         Boolean dashed = style == null ? Boolean.FALSE : "DASHED".equalsIgnoreCase(style.getString(Tag.LinePattern)); //$NON-NLS-1$
         if (style != null) {
-            float[] rgb = CIELab.convertToFloatLab(style.getInts(Tag.PatternOnColorCIELabValue));
+            int[] rgb = CIELab.dicomLab2rgb(style.getInts(Tag.PatternOnColorCIELabValue));
             if (rgb != null) {
-                color = PresentationStateReader.getRGBColor(255, rgb, (int[]) null);
+                color = PresentationStateReader.getRGBColor(255, rgb);
             }
         }
 

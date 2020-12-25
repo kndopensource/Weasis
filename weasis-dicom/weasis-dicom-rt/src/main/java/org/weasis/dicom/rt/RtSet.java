@@ -1,18 +1,19 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.rt;
 
 import static org.opencv.core.Core.add;
 import static org.opencv.core.Core.multiply;
 
 import java.awt.Color;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weasis.core.api.gui.util.MathUtil;
 import org.weasis.core.api.media.data.MediaElement;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.DcmMediaReader;
 import org.weasis.dicom.codec.DicomImageElement;
 import org.weasis.dicom.codec.PresentationStateReader;
@@ -74,7 +75,7 @@ public class RtSet {
     private int structureFillTransparency = 115;
     private int isoFillTransparency = 70;
     boolean forceRecalculateDvh = false;
-    private  Random rand = new Random();
+    private  Random rand = new SecureRandom();
 
     public RtSet(String frameOfReferenceUID, List<MediaElement> rtElements) {
         this.frameOfReferenceUID = Objects.requireNonNull(frameOfReferenceUID);
@@ -266,7 +267,7 @@ public class RtSet {
                     rgb = new int[] { rand.nextInt(255), rand.nextInt(255), rand.nextInt(255) };
                 }
 
-                Color color1 = PresentationStateReader.getRGBColor(255, null, rgb);
+                Color color1 = PresentationStateReader.getRGBColor(255, rgb);
                 Color color2 =
                     new Color(color1.getRed(), color1.getGreen(), color1.getBlue(), structureFillTransparency);
                 layer.getStructure().setColor(color2);

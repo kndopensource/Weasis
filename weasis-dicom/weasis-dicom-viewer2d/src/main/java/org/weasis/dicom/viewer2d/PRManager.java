@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.viewer2d;
 
 import java.awt.Color;
@@ -43,8 +43,6 @@ import org.weasis.core.api.image.ZoomOp;
 import org.weasis.core.api.image.util.CIELab;
 import org.weasis.core.api.image.util.Unit;
 import org.weasis.core.api.media.data.MediaSeries;
-import org.weasis.core.api.util.EscapeChars;
-import org.weasis.core.api.util.LangUtil;
 import org.weasis.core.ui.editor.image.ViewButton;
 import org.weasis.core.ui.editor.image.ViewCanvas;
 import org.weasis.core.ui.editor.image.dockable.MeasureTool;
@@ -59,6 +57,8 @@ import org.weasis.core.ui.model.layer.LayerType;
 import org.weasis.core.ui.model.layer.imp.DefaultLayer;
 import org.weasis.core.ui.model.utils.exceptions.InvalidShapeException;
 import org.weasis.core.ui.util.TitleMenuItem;
+import org.weasis.core.util.EscapeChars;
+import org.weasis.core.util.LangUtil;
 import org.weasis.dicom.codec.DicomImageElement;
 import org.weasis.dicom.codec.PRSpecialElement;
 import org.weasis.dicom.codec.PresentationStateReader;
@@ -328,17 +328,19 @@ public class PRManager {
 
                     Integer grayVal = DicomMediaUtils.getIntegerFromDicomElement(glm,
                         Tag.GraphicLayerRecommendedDisplayGrayscaleValue, null);
-                    float[] colorLab = CIELab.convertToFloatLab(DicomMediaUtils.getIntAyrrayFromDicomElement(glm,
+                    int[] colorRgb = CIELab.dicomLab2rgb(DicomMediaUtils.getIntAyrrayFromDicomElement(glm,
                         Tag.GraphicLayerRecommendedDisplayCIELabValue, null));
-                    int[] colorRgb = DicomMediaUtils.getIntAyrrayFromDicomElement(glm,
-                        Tag.GraphicLayerRecommendedDisplayRGBValue, null);
-                    if (colorRgb == null && colorLab == null && grayVal == null) {
+                    if(colorRgb == null) {
+                        colorRgb = DicomMediaUtils.getIntAyrrayFromDicomElement(glm,
+                                Tag.GraphicLayerRecommendedDisplayRGBValue, null);
+                    }
+                    if (colorRgb == null && grayVal == null) {
                         Color c = Optional.ofNullable(MeasureTool.viewSetting.getLineColor()).orElse(Color.YELLOW);
                         colorRgb = new int[] { c.getRed(), c.getGreen(), c.getBlue() };
                     }
 
-                    Color rgb =
-                        PresentationStateReader.getRGBColor(grayVal == null ? 255 : grayVal, colorLab, colorRgb);
+                    Color rgbColor =
+                        PresentationStateReader.getRGBColor(grayVal == null ? 255 : grayVal, colorRgb);
 
                     Sequence gos = gram.getSequence(Tag.GraphicObjectSequence);
 
@@ -347,7 +349,7 @@ public class PRManager {
                             Graphic graphic;
                             try {
                                 graphic =
-                                    PrGraphicUtil.buildGraphic(go, rgb, false, width, height, true, inverse, false);
+                                    PrGraphicUtil.buildGraphic(go, rgbColor, false, width, height, true, inverse, false);
                                 if (graphic != null) {
                                     AbstractGraphicModel.addGraphicToModel(view, layer, graphic);
                                 }
@@ -363,9 +365,9 @@ public class PRManager {
                             Attributes style = txo.getNestedDataset(Tag.LineStyleSequence);
                             Float thickness = DicomMediaUtils.getFloatFromDicomElement(style, Tag.LineThickness, 1.0f);
                             if (style != null) {
-                                float[] lab = CIELab.convertToFloatLab(style.getInts(Tag.PatternOnColorCIELabValue));
-                                if (lab != null) {
-                                    rgb = PresentationStateReader.getRGBColor(255, lab, (int[]) null);
+                                int[] rgb = CIELab.dicomLab2rgb(style.getInts(Tag.PatternOnColorCIELabValue));
+                                if (rgb != null) {
+                                    rgbColor = PresentationStateReader.getRGBColor(255, rgb);
                                 }
                             }
 
@@ -428,7 +430,7 @@ public class PRManager {
                                     pts.add(ptAnchor);
                                     pts.add(ptBox);
                                     Graphic g = new AnnotationGraphic().buildGraphic(pts);
-                                    g.setPaint(rgb);
+                                    g.setPaint(rgbColor);
                                     g.setLineThickness(thickness);
                                     g.setLabelVisible(Boolean.TRUE);
                                     g.setLabel(textLines, view);

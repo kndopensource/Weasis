@@ -1,13 +1,13 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0, or the Apache License, Version 2.0
- * which is available at https://www.apache.org/licenses/LICENSE-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ *  Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0, or the Apache
+ *  License, Version 2.0 which is available at https://www.apache.org/licenses/LICENSE-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.launcher;
 
 import java.awt.Desktop;
@@ -71,7 +71,7 @@ public class WeasisLauncher {
         InputStream loggerProps =
             WeasisLauncher.class.getResourceAsStream(System.getProperty("java.logging.path", "/logging.properties")); //$NON-NLS-1$ //$NON-NLS-2$
         try {
-            LogManager.getLogManager().readConfiguration(loggerProps);
+            LogManager.getLogManager().readConfiguration(loggerProps); // NOSONAR boot log before slf4j, nothing sensitive
         } catch (SecurityException | IOException e) {
             e.printStackTrace(); // NOSONAR cannot use logger
         }
@@ -1140,8 +1140,7 @@ public class WeasisLauncher {
     }
 
     /**
-     * @see https://bugs.openjdk.java.net/browse/JDK-8054639
-     *
+     * @see <a href=https://bugs.openjdk.java.net/browse/JDK-8054639>Java Web start bug</a>
      */
     private static void handleWebstartHookBug() {
         if (getJavaMajorVersion() < 9) {
@@ -1151,7 +1150,7 @@ public class WeasisLauncher {
             try {
                 Class<?> clazz = Class.forName("java.lang.ApplicationShutdownHooks"); //$NON-NLS-1$
                 Field field = clazz.getDeclaredField("hooks"); //$NON-NLS-1$
-                field.setAccessible(true);
+                field.setAccessible(true); // NOSONAR only workaround to fix buggy java webstart classloader
                 Map<?, Thread> hooks = (Map<?, Thread>) field.get(clazz);
                 for (Iterator<Thread> it = hooks.values().iterator(); it.hasNext();) {
                     Thread thread = it.next();

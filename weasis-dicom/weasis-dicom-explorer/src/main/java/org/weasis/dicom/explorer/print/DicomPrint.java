@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 
 package org.weasis.dicom.explorer.print;
 
@@ -33,7 +33,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executors;
-
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Sequence;
 import org.dcm4che3.data.Tag;
@@ -44,9 +43,12 @@ import org.dcm4che3.net.Association;
 import org.dcm4che3.net.Connection;
 import org.dcm4che3.net.Device;
 import org.dcm4che3.net.DimseRSP;
+import org.dcm4che3.net.Status;
 import org.dcm4che3.net.pdu.AAssociateRQ;
 import org.dcm4che3.net.pdu.PresentationContext;
 import org.dcm4che3.util.UIDUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weasis.core.api.gui.util.MathUtil;
 import org.weasis.core.api.image.AffineTransformOp;
 import org.weasis.core.api.image.LayoutConstraints;
@@ -61,6 +63,7 @@ import org.weasis.dicom.explorer.print.DicomPrintDialog.FilmSize;
 import org.weasis.opencv.data.PlanarImage;
 
 public class DicomPrint {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DicomPrint.class );
 
     private final DicomPrintNode dcmNode;
     private final DicomPrintOptions printOptions;
@@ -262,10 +265,10 @@ public class DicomPrint {
         Attributes filmBoxAttrs = new Attributes();
         Attributes imageBoxAttrs = new Attributes();
         Attributes dicomImage = new Attributes();
-        final String printManagementSOPClass = printOptions.isColorPrint() ? UID.BasicColorPrintManagementMetaSOPClass
-            : UID.BasicGrayscalePrintManagementMetaSOPClass;
+        final String printManagementSOPClass = printOptions.isColorPrint() ? UID.BasicColorPrintManagementMeta
+            : UID.BasicGrayscalePrintManagementMeta;
         final String imageBoxSOPClass =
-            printOptions.isColorPrint() ? UID.BasicColorImageBoxSOPClass : UID.BasicGrayscaleImageBoxSOPClass;
+            printOptions.isColorPrint() ? UID.BasicColorImageBox : UID.BasicGrayscaleImageBox;
 
         storeRasterInDicom(image, dicomImage, printOptions.isColorPrint());
 
@@ -318,7 +321,7 @@ public class DicomPrint {
         final String filmSessionUID = UIDUtils.createUID();
         final String filmBoxUID = UIDUtils.createUID();
         Attributes filmSessionSequenceObject = new Attributes();
-        filmSessionSequenceObject.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicFilmSessionSOPClass);
+        filmSessionSequenceObject.setString(Tag.ReferencedSOPClassUID, VR.UI, UID.BasicFilmSession);
         filmSessionSequenceObject.setString(Tag.ReferencedSOPInstanceUID, VR.UI, filmSessionUID);
         seq = filmBoxAttrs.ensureSequence(Tag.ReferencedFilmSessionSequence, 1);
         seq.add(filmSessionSequenceObject);
@@ -329,11 +332,12 @@ public class DicomPrint {
         rq.setCalledAET(remoteAE.getAETitle());
         Association as = ae.connect(remoteConn, rq);
         try {
+            // See http://dicom.nema.org/medical/dicom/current/output/chtml/part02/sect_E.4.2.html
             // Create a Basic Film Session
-            dimseRSPHandler(as.ncreate(printManagementSOPClass, UID.BasicFilmSessionSOPClass, filmSessionUID,
+            dimseRSPHandler(as.ncreate(printManagementSOPClass, UID.BasicFilmSession, filmSessionUID,
                 filmSessionAttrs, UID.ImplicitVRLittleEndian));
             // Create a Basic Film Box. We need to get the Image Box UID from the response
-            DimseRSP ncreateFilmBoxRSP = as.ncreate(printManagementSOPClass, UID.BasicFilmBoxSOPClass, filmBoxUID,
+            DimseRSP ncreateFilmBoxRSP = as.ncreate(printManagementSOPClass, UID.BasicFilmBox, filmBoxUID,
                 filmBoxAttrs, UID.ImplicitVRLittleEndian);
             dimseRSPHandler(ncreateFilmBoxRSP);
             ncreateFilmBoxRSP.next();
@@ -343,11 +347,11 @@ public class DicomPrint {
             dimseRSPHandler(as.nset(printManagementSOPClass, imageBoxSOPClass,
                 imageBoxSequence.getString(Tag.ReferencedSOPInstanceUID), imageBoxAttrs, UID.ImplicitVRLittleEndian));
             // Send N-ACTION message with the print action
-            dimseRSPHandler(as.naction(printManagementSOPClass, UID.BasicFilmBoxSOPClass, filmBoxUID, 1, null,
+            dimseRSPHandler(as.naction(printManagementSOPClass, UID.BasicFilmBox, filmBoxUID, 1, null,
                 UID.ImplicitVRLittleEndian));
             // The print action ends here. This will only delete the Film Box and Film Session
-            as.ndelete(printManagementSOPClass, UID.BasicFilmBoxSOPClass, filmBoxUID);
-            as.ndelete(printManagementSOPClass, UID.BasicFilmSessionSOPClass, filmSessionUID);
+            as.ndelete(printManagementSOPClass, UID.BasicFilmBox, filmBoxUID);
+            as.ndelete(printManagementSOPClass, UID.BasicFilmSession, filmSessionUID);
         } finally {
             if (as != null && as.isReadyForDataTransfer()) {
                 as.waitForOutstandingRSP();
@@ -360,8 +364,13 @@ public class DicomPrint {
     private void dimseRSPHandler(DimseRSP response) throws IOException, InterruptedException {
         response.next();
         Attributes command = response.getCommand();
-        if (command.getInt(Tag.Status, 0) != 0) {
-            throw new IOException("Unable to print the image. DICOM response status: " + command.getInt(Tag.Status, 0)); //$NON-NLS-1$
+        int status = command.getInt(Tag.Status, 0);
+        if (status == Status.AttributeValueOutOfRange || status == Status.AttributeListError || status == 0xB600
+            || status == 0xB602 || status == 0xB604 || status == 0xB609 || status == 0xB60A) {
+            LOGGER.warn("DICOM Print warning status: {}", Integer.toHexString(status)); //$NON-NLS-1$
+        } else if (status != Status.Success) {
+            throw new IOException(
+                "Unable to print the image. DICOM response status: " + Integer.toHexString(status)); //$NON-NLS-1$
         }
     }
 

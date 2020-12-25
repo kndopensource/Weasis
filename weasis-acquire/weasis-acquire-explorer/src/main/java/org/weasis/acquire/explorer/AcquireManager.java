@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.acquire.explorer;
 
 import java.awt.Component;
@@ -69,7 +69,7 @@ import org.weasis.core.api.service.BundleTools;
 import org.weasis.core.api.util.ClosableURLConnection;
 import org.weasis.core.api.util.GzipManager;
 import org.weasis.core.api.util.NetworkUtil;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.core.api.util.URLParameters;
 import org.weasis.core.ui.docking.UIManager;
 import org.weasis.core.ui.editor.image.ViewCanvas;
@@ -314,7 +314,7 @@ public class AcquireManager {
     public static String getPatientContextName() {
         String patientName =
             TagD.getDicomPersonName(TagD.getTagValue(AcquireManager.GLOBAL, Tag.PatientName, String.class));
-        if (!org.weasis.core.api.util.StringUtil.hasLength(patientName)) {
+        if (!org.weasis.core.util.StringUtil.hasLength(patientName)) {
             patientName = TagW.NO_VALUE;
         }
         return patientName;
@@ -588,6 +588,8 @@ public class AcquireManager {
             }
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); //$NON-NLS-1$
+            factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); //$NON-NLS-1$
             return factory.newDocumentBuilder().parse(inputStream);
         } catch (SAXException | IOException | ParserConfigurationException e) {
             LOGGER.error("Parsing Patient Context XML", e); //$NON-NLS-1$

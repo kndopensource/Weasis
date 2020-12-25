@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer;
 
 import java.beans.PropertyChangeListener;
@@ -57,7 +57,7 @@ import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.media.data.Thumbnail;
 import org.weasis.core.api.service.BundleTools;
 import org.weasis.core.api.util.GzipManager;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.core.api.util.ThreadUtil;
 import org.weasis.core.ui.docking.UIManager;
 import org.weasis.core.ui.editor.SeriesViewerFactory;
@@ -120,7 +120,7 @@ public class DicomModel implements TreeModel, DataExplorerModel {
         ArrayList<Codec> codecPlugins = new ArrayList<>(1);
         synchronized (BundleTools.CODEC_PLUGINS) {
             for (Codec codec : BundleTools.CODEC_PLUGINS) {
-                if (codec != null && !"Sun java imageio".equals(codec.getCodecName()) //$NON-NLS-1$
+                if (codec != null && !"JDK ImageIO".equals(codec.getCodecName()) //$NON-NLS-1$
                     && codec.isMimeTypeSupported(DicomMediaIO.DICOM_MIMETYPE) && !codecPlugins.contains(codec)) {
                     codecPlugins.add(codec);
                 }

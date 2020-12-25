@@ -1,14 +1,19 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.core.api.image.cv;
 
+import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -18,12 +23,15 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.weasis.core.api.image.util.KernelData;
 import org.weasis.core.api.media.data.ImageElement;
 import org.weasis.opencv.data.ImageCV;
 import org.weasis.opencv.data.PlanarImage;
 
 public class CvUtil {
+    private static final Logger LOGGER = LoggerFactory.getLogger( CvUtil.class );
     
     private CvUtil() {
     }
@@ -50,6 +58,23 @@ public class CvUtil {
         // TODO improve speed with dedicated call
         // Imgproc.blur(srcImg, dstImg, new Size(3,3));
         return dstImg;
+    }
+
+    public static VolatileImage  getVolatileImage(GraphicsConfiguration gc, BufferedImage src) {
+        if(gc == null || src == null) {
+            return null;
+        }
+        VolatileImage dst = null;
+        try{
+            dst = gc.createCompatibleVolatileImage(src.getWidth(), src.getHeight());
+            Graphics2D g = dst.createGraphics();
+            g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g.drawImage(src, 0, 0, null);
+            g.dispose();
+        } catch (Exception e) {
+            LOGGER.error("Cannot create volatile image", e); //$NON-NLS-1$
+        }
+        return dst;
     }
     
     public static ImageCV meanStack(List<ImageElement> sources) {

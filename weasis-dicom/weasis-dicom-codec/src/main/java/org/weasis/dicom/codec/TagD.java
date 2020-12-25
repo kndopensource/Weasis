@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
@@ -52,9 +52,9 @@ import org.slf4j.LoggerFactory;
 import org.weasis.core.api.media.data.TagReadable;
 import org.weasis.core.api.media.data.TagUtil;
 import org.weasis.core.api.media.data.TagW;
-import org.weasis.core.api.util.FileUtil;
-import org.weasis.core.api.util.LangUtil;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.FileUtil;
+import org.weasis.core.util.LangUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.utils.DicomMediaUtils;
 
 public class TagD extends TagW {
@@ -353,11 +353,11 @@ public class TagD extends TagW {
                 int[] ds = new int[ss.length];
                 for (int i = 0; i < ds.length; i++) {
                     String s = ss[i];
-                    ds[i] = (s != null && !s.isEmpty()) ? StringUtils.parseIS(s) : 0;
+                    ds[i] = (s != null && !s.isEmpty()) ? (int) StringUtils.parseIS(s) : 0;
                 }
                 value = ds;
             } else {
-                value = StringUtils.parseIS(data);
+                value = (int) StringUtils.parseIS(data);
             }
         } else if (TagType.FLOAT.equals(type)) {
             if (vmMax > 1) {
@@ -600,7 +600,7 @@ public class TagD extends TagW {
     }
 
     private static int getVM(String val) {
-        if ("n".equals(val) || val.contains("n")) { //$NON-NLS-1$ //$NON-NLS-2$
+        if ("n".equals(val) || val.toLowerCase().contains("n")) { //$NON-NLS-1$ //$NON-NLS-2$
             return Integer.MAX_VALUE;
         }
         return Integer.parseInt(val);

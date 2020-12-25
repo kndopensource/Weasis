@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec.utils;
 
 import java.awt.Color;
@@ -57,8 +57,8 @@ import org.weasis.core.api.media.data.TagUtil;
 import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.media.data.TagW.TagType;
 import org.weasis.core.api.media.data.Tagable;
-import org.weasis.core.api.util.FileUtil;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.FileUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.DicomMediaIO;
 import org.weasis.dicom.codec.PresentationStateReader;
 import org.weasis.dicom.codec.TagD;
@@ -224,7 +224,7 @@ public class DicomMediaUtils {
             try {
                 bData = dicomLutObject.getBytes(Tag.LUTData);
             } catch (IOException e) {
-                LOGGER.error("Cannot get byte[] of {}: {} ", TagUtils.toString(Tag.LUTData), e); //$NON-NLS-1$
+                LOGGER.error("Cannot get byte[] of {}", TagUtils.toString(Tag.LUTData), e); //$NON-NLS-1$
                 return null;
             }
 
@@ -624,10 +624,10 @@ public class DicomMediaUtils {
     public static void setShutterColor(Tagable tagable, Attributes attributes) {
         Integer psVal = (Integer) TagD.get(Tag.ShutterPresentationValue).getValue(attributes);
         tagable.setTagNoNull(TagW.ShutterPSValue, TagD.get(Tag.ShutterPresentationValue).getValue(attributes));
-        float[] rgb =
-            CIELab.convertToFloatLab((int[]) TagD.get(Tag.ShutterPresentationColorCIELabValue).getValue(attributes));
+        int[] rgb =
+            CIELab.dicomLab2rgb((int[]) TagD.get(Tag.ShutterPresentationColorCIELabValue).getValue(attributes));
         Color color =
-            rgb == null ? null : PresentationStateReader.getRGBColor(psVal == null ? 0 : psVal, rgb, (int[]) null);
+            rgb == null ? null : PresentationStateReader.getRGBColor(psVal == null ? 0 : psVal, rgb);
         tagable.setTagNoNull(TagW.ShutterRGBColor, color);
     }
 

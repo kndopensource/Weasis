@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec;
 
 import java.io.File;
@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weasis.core.api.media.data.MediaElement;
 import org.weasis.core.api.media.data.SeriesComparator;
-import org.weasis.core.api.util.StringUtil;
-import org.weasis.core.api.util.StringUtil.Suffix;
+import org.weasis.core.util.StringUtil;
+import org.weasis.core.util.StringUtil.Suffix;
 import org.weasis.dicom.codec.macro.SOPInstanceReferenceAndMAC;
 import org.weasis.dicom.codec.utils.DicomMediaUtils;
 
@@ -151,7 +151,7 @@ public class DicomSpecialElement extends MediaElement {
                     out.writeDataset(dcm.createFileMetaInformation(UID.ImplicitVRLittleEndian), dcm);
                     return true;
                 } catch (IOException e) {
-                    LOGGER.error("Cannot write dicom ({}): {}", getLabel(), e); //$NON-NLS-1$
+                    LOGGER.error("Cannot write dicom ({}) into {}", getLabel(), output, e); //$NON-NLS-1$
                 }
             }
         }

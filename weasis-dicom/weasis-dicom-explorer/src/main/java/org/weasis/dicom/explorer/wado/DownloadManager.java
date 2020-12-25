@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.explorer.wado;
 
 import java.io.BufferedInputStream;
@@ -61,11 +61,7 @@ import org.weasis.core.api.media.data.Thumbnail;
 import org.weasis.core.api.service.BundleTools;
 import org.weasis.core.api.util.BiConsumerWithException;
 import org.weasis.core.api.util.ClosableURLConnection;
-import org.weasis.core.api.util.FileUtil;
 import org.weasis.core.api.util.NetworkUtil;
-import org.weasis.core.api.util.StreamIOException;
-import org.weasis.core.api.util.StringUtil;
-import org.weasis.core.api.util.StringUtil.Suffix;
 import org.weasis.core.api.util.ThreadUtil;
 import org.weasis.core.api.util.URLParameters;
 import org.weasis.core.ui.docking.UIManager;
@@ -75,6 +71,10 @@ import org.weasis.core.ui.model.ReferencedImage;
 import org.weasis.core.ui.model.ReferencedSeries;
 import org.weasis.core.ui.serialize.XmlSerializer;
 import org.weasis.core.ui.util.ColorLayerUI;
+import org.weasis.core.util.FileUtil;
+import org.weasis.core.util.StreamIOException;
+import org.weasis.core.util.StringUtil;
+import org.weasis.core.util.StringUtil.Suffix;
 import org.weasis.dicom.codec.DicomSeries;
 import org.weasis.dicom.codec.KOSpecialElement;
 import org.weasis.dicom.codec.TagD;

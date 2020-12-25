@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.dicom.codec;
 
 import java.io.IOException;
@@ -21,6 +21,7 @@ import org.dcm4che3.data.ItemPointer;
 import org.dcm4che3.data.SpecificCharacterSet;
 import org.dcm4che3.data.Tag;
 import org.dcm4che3.data.VR;
+import org.dcm4che3.imageio.plugins.dcm.DicomImageReaderSpi;
 import org.dcm4che3.io.BulkDataDescriptor;
 import org.dcm4che3.util.TagUtils;
 import org.dcm4che3.util.UIDUtils;
@@ -39,8 +40,9 @@ import org.weasis.core.api.media.data.MediaReader;
 import org.weasis.core.api.service.AuditLog;
 import org.weasis.core.api.service.BundlePreferences;
 import org.weasis.core.api.service.BundleTools;
+import org.weasis.imageio.codec.ImageioUtil;
 
-import com.sun.media.imageioimpl.common.ImageioUtil;
+
 
 @org.osgi.service.component.annotations.Component(service = Codec.class, immediate = false)
 public class DicomCodec implements Codec {
@@ -87,7 +89,7 @@ public class DicomCodec implements Codec {
         }
     };
 
-    private static final IIOServiceProvider[] dcm4cheCodecs = { new org.dcm4che3.imageio.plugins.rle.RLEImageReaderSpi(),
+    private static final IIOServiceProvider[] dcm4cheCodecs = { new DicomImageReaderSpi(), new org.dcm4che3.imageio.plugins.rle.RLEImageReaderSpi(),
         new org.dcm4che3.opencv.NativeJLSImageReaderSpi(), new  org.dcm4che3.opencv.NativeJPEGImageReaderSpi(),
         new  org.dcm4che3.opencv.NativeJ2kImageReaderSpi(), new org.dcm4che3.opencv.NativeJLSImageWriterSpi(),
         new org.dcm4che3.opencv.NativeJPEGImageWriterSpi(), new org.dcm4che3.opencv.NativeJ2kImageWriterSpi() };
@@ -164,8 +166,6 @@ public class DicomCodec implements Codec {
 
         // Register SPI in imageio registry with the classloader of this bundle (provides also the classpath for
         // discovering the SPI files). Here are the codecs:
-        ImageioUtil.registerServiceProvider(DicomMediaIO.dicomImageReaderSpi);
-
         for (IIOServiceProvider p : dcm4cheCodecs) {
             ImageioUtil.registerServiceProvider(p);
         }
@@ -194,7 +194,6 @@ public class DicomCodec implements Codec {
     @Deactivate
     protected void deactivate(ComponentContext context) {
         LOGGER.info("Deactivate DicomCodec"); //$NON-NLS-1$
-        ImageioUtil.deregisterServiceProvider(DicomMediaIO.dicomImageReaderSpi);
         for (IIOServiceProvider p : dcm4cheCodecs) {
             ImageioUtil.deregisterServiceProvider(p);
         }

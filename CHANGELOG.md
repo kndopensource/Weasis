@@ -1,5 +1,42 @@
 # Changelog
 
+## [v3.6.2](https://github.com/nroduit/weasis/tree/v3.6.2) (2020-08-26)
+
+[Full Changelog](https://github.com/nroduit/weasis/compare/v3.6.1...v3.6.2)
+
+**Implemented enhancements:**
+
+- Weasis shows green hues instead of black in JPEG-compressed Ultrasound images [\#140](https://github.com/nroduit/Weasis/issues/140)
+
+**Fixed bugs:**
+
+- Cannot read signed data with PaletteColor [\#148](https://github.com/nroduit/Weasis/issues/148)
+- DICOM Print: warning DICOM status is treated as an error [\#147](https://github.com/nroduit/Weasis/issues/147)
+- Cannot start MPR for series containing  ISO 2022 IR 149 charset [\#144](https://github.com/nroduit/Weasis/issues/144)
+- Not all colors are displayed correctly in DICOM PR graphics [\#143](https://github.com/nroduit/Weasis/issues/143)
+- Cannot add http headers when creating a new WEB Node [\#142](https://github.com/nroduit/Weasis/issues/142)
+- Poor image display with a more than 100% factor in the Window 10 display settings. [\#141](https://github.com/nroduit/Weasis/issues/141)
+- Cannot retrieve thumbnail with WADO-URI request [\#139](https://github.com/nroduit/Weasis/issues/139)
+
+## [v3.6.1](https://github.com/nroduit/weasis/tree/v3.6.1) (2020-07-03)
+
+[Full Changelog](https://github.com/nroduit/weasis/compare/v3.6.0...v3.6.1)
+
+**Implemented enhancements:**
+
+- Use weasis-core-img 4.3.0 and remove jai\_imageio dependency [\#135](https://github.com/nroduit/Weasis/issues/135)
+- Update radiance to 3.0.0 for the native distribution [\#134](https://github.com/nroduit/Weasis/issues/134)
+- Remembering Window position and size [\#123](https://github.com/nroduit/Weasis/issues/123)
+
+**Fixed bugs:**
+
+- Fix applying VOI Lut with a Presentation LUT and when there is no lookup table [\#133](https://github.com/nroduit/Weasis/issues/133)
+- Fix patientid containing special characters in dicomweb command [\#132](https://github.com/nroduit/Weasis/issues/132)
+- Command for loading DICOM locally doesn't work on Windows [\#128](https://github.com/nroduit/Weasis/issues/128)
+- Opening files with Polish diacritic signs doesn't work on Windows [\#126](https://github.com/nroduit/Weasis/issues/126)
+- Chinese charset exception when reading dataset [\#119](https://github.com/nroduit/Weasis/issues/119)
+- Weasis 3.5.4 crashes on OS X 10.15.2 [\#116](https://github.com/nroduit/Weasis/issues/116)
+
 ## [v3.6.0](https://github.com/nroduit/weasis/tree/v3.6.0) (2020-02-21)
 
 [Full Changelog](https://github.com/nroduit/weasis/compare/v3.5.4...v3.6.0)
@@ -12,7 +49,6 @@
 **Fixed bugs:**
 
 - Remove pack200 compression in Java 14 \(replace by xz for plug-in files\) [\#117](https://github.com/nroduit/Weasis/issues/117)
-- Weasis 3.5.4 crashes on OS X 10.15.2 [\#116](https://github.com/nroduit/Weasis/issues/116)
 - Cannot display 16-bit image with DICOM PALETTE\_COLOR [\#112](https://github.com/nroduit/Weasis/issues/112)
 - Mouse cursor is moving on the Weasis window \(when already open\) [\#108](https://github.com/nroduit/Weasis/issues/108)
 - NPE when loading a manifest [\#107](https://github.com/nroduit/Weasis/issues/107)

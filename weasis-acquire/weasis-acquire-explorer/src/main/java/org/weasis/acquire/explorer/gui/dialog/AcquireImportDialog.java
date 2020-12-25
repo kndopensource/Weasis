@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.acquire.explorer.gui.dialog;
 
 import java.awt.Component;
@@ -41,7 +41,7 @@ import org.weasis.acquire.explorer.gui.control.ImportPanel;
 import org.weasis.core.api.gui.util.JMVUtils;
 import org.weasis.core.api.media.data.ImageElement;
 import org.weasis.core.api.service.BundlePreferences;
-import org.weasis.core.api.util.StringUtil;
+import org.weasis.core.util.StringUtil;
 import org.weasis.core.api.util.ThreadUtil;
 
 public class AcquireImportDialog extends JDialog implements PropertyChangeListener {

@@ -1,12 +1,12 @@
-/*******************************************************************************
+/*
  * Copyright (c) 2009-2020 Weasis Team and other contributors.
  *
- * This program and the accompanying materials are made available under the
- * terms of the Eclipse Public License 2.0 which is available at
- * http://www.eclipse.org/legal/epl-2.0.
+ * This program and the accompanying materials are made available under the terms of the Eclipse
+ * Public License 2.0 which is available at http://www.eclipse.org/legal/epl-2.0.
  *
  * SPDX-License-Identifier: EPL-2.0
- *******************************************************************************/
+ */
+
 package org.weasis.core.api.image;
 
 import java.util.ArrayList;
@@ -225,7 +225,7 @@ public class SimpleOpManager implements OpManager {
                         op.setParam(Param.OUTPUT_IMG, op.getParam(Param.INPUT_IMG));
                     }
                 } catch (Exception e) {
-                    LOGGER.error("Image {} failed: {}", op.getParam(Param.NAME), e); //$NON-NLS-1$
+                    LOGGER.error("Image {} failed", op.getParam(Param.NAME), e); //$NON-NLS-1$
                     op.setParam(Param.OUTPUT_IMG, op.getParam(Param.INPUT_IMG));
                 }
             }
